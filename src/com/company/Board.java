@@ -4,8 +4,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.Random;
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
 
 public class Board extends JPanel {
 
@@ -81,7 +79,7 @@ public class Board extends JPanel {
         //Wave TextBox
         waveText = new JTextField("Wave: " + wave,5);
         Font font = new Font("Arial Black", Font.BOLD, 10);
-        waveText.setBounds(820,0,60,25);
+        waveText.setBounds(815,0,70,25);
         waveText.setFont(font);
         waveText.setOpaque(true);
         waveText.setBackground(Color.BLACK);
@@ -379,7 +377,7 @@ public class Board extends JPanel {
                 j++;
             }
 
-            if (j == Features.N_OF_ROCKS && wave <= waveAmount) {
+            if (j == Features.N_OF_ROCKS && wave < waveAmount) {
 
                 wave++;
                 newWave = true;
@@ -392,7 +390,7 @@ public class Board extends JPanel {
                     asteroids[k].setMovingY(false);
                 }
             }
-            if (j == Features.N_OF_ROCKS && wave > waveAmount) {
+            if (j == Features.N_OF_ROCKS && wave >= waveAmount) {
 
                 message = victory;
                 stopGame();
