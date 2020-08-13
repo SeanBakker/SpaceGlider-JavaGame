@@ -7,6 +7,8 @@ public class Asteroids extends SetValue {
 
     private boolean destroyed;
     private boolean moving;
+    private boolean movingY;
+    private boolean movingUp;
     private ImageIcon ii = new ImageIcon("src/resources/asteroid4.png");
     public double min = 1;
     public double midMin = 25;
@@ -25,6 +27,8 @@ public class Asteroids extends SetValue {
 
         destroyed = false;
         moving = false;
+        movingY = false;
+        movingUp = false;
 
         loadImage(powerUp, powerType);
         getImageDimensions();
@@ -71,6 +75,22 @@ public class Asteroids extends SetValue {
 
     void setMoving(boolean val) {
         moving = val;
+    }
+
+    boolean isMovingY() {
+        return movingY;
+    }
+
+    void setMovingY(boolean val) {
+        movingY = val;
+    }
+
+    boolean isMovingUp() {
+        return movingUp;
+    }
+
+    void setMovingUp(boolean val) {
+        movingUp = val;
     }
 
 }

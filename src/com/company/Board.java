@@ -4,6 +4,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.Random;
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 
 public class Board extends JPanel {
 
@@ -23,7 +25,8 @@ public class Board extends JPanel {
     private int delay = 800;
     private int firstDelay = 3000;
     private boolean firstAsteroid = true;
-    private double asteroidMoveInt = 3;
+    private double asteroidMoveIntX = 3;
+    private double asteroidMoveIntY = 1;
     private boolean startStopwatch = true;
     private boolean startGame = true;
     private int count = 0;
@@ -42,6 +45,10 @@ public class Board extends JPanel {
     private int powerType;
     private double powerMoveInt = 1.3;
     private float opacity = 0.0f;
+    private int numMoveY = 2;
+    private int pause = 0;
+    private JTextField waveText;
+    private JButton pauseButton;
 
     public Board() {
         initBoard();
@@ -52,14 +59,50 @@ public class Board extends JPanel {
         addKeyListener(new TAdapter());
         setPreferredSize(new Dimension(Features.WIDTH, Features.HEIGHT));
         setFocusable(true);
+        setLayout(null);
 
+        //Start Button
         JButton startButton = new JButton("Start Game");
-        startButton.setSize(Features.WIDTH / 50, Features.HEIGHT / 50);
-        startButton.setLocation(Features.WIDTH / 2, Features.HEIGHT / 2);
+        startButton.setBounds(430,240,110,25);
         add(startButton);
         startButton.setVisible(true);
         startButton.setBackground(Color.BLACK);
         startButton.setForeground(Color.WHITE);
+        startButton.setFocusable(false);
+
+        //Pause Button
+        pauseButton = new JButton("Pause Game");
+        pauseButton.setBounds(880,0,110,25);
+        pauseButton.setVisible(true);
+        pauseButton.setBackground(Color.BLACK);
+        pauseButton.setForeground(Color.WHITE);
+        pauseButton.setFocusable(false);
+
+        //Wave TextBox
+        waveText = new JTextField("Wave: " + wave,5);
+        Font font = new Font("Arial Black", Font.BOLD, 10);
+        waveText.setBounds(820,0,60,25);
+        waveText.setFont(font);
+        waveText.setOpaque(true);
+        waveText.setBackground(Color.BLACK);
+        waveText.setForeground(Color.white);
+        waveText.setFocusable(false);
+        waveText.setEditable(false);
+
+        pauseButton.addActionListener(e -> {
+            pause++;
+            if (pause % 2 != 0) {
+                if (pressedButton){
+                    timer.stop();
+                }
+            }
+            else {
+                if (pressedButton){
+                    timer.start();
+                }
+            }
+        });
+
         player = new Player();
 
         if (!pressedButton) {
@@ -70,7 +113,9 @@ public class Board extends JPanel {
                 timer = new Timer(Features.PERIOD, new GameCycle());
                 timer.start();
                 gameInit();
-                startButton.setVisible(false);
+                remove(startButton);
+                add(pauseButton);
+                add(waveText);
             });
         }
     }
@@ -83,9 +128,11 @@ public class Board extends JPanel {
 
             for (int j = 0; j < 2; j++) {
 
-                asteroids[k] = new Asteroids(j * 50 + 850, i * 40 + 5, newMidMin, newMidMax, false, powerType);
+                asteroids[k] = new Asteroids(j + 900, i * 40 + 5, newMidMin, newMidMax, false, powerType);
                 asteroids[k].setDestroyed(false);
                 asteroids[k].setMoving(false);
+                asteroids[k].setMovingY(false);
+                asteroids[k].setMovingUp(false);
                 k++;
             }
         }
@@ -97,7 +144,7 @@ public class Board extends JPanel {
 
                 for (int j = 0; j < 2; j++) {
 
-                    powerUp[k] = new Asteroids(j * 50 + 850, i * 40 + 5, newMidMin, newMidMax, newPowerUp, powerType);
+                    powerUp[k] = new Asteroids(j + 900, i * 40 + 5, newMidMin, newMidMax, newPowerUp, powerType);
                     powerUp[k].setDestroyed(false);
                     powerUp[k].setMoving(false);
                     k++;
@@ -145,11 +192,15 @@ public class Board extends JPanel {
             extraLife = false;
         }
         if (!first) {
+            if (wave % 2 == 0){
+                numMoveY++;
+            }
             newWave = false;
             delay = delay - 45;
+            asteroidMoveIntY = asteroidMoveIntY + 0.2;
             playerMoveInt = (playerMoveInt + 0.2);
             player.moveInt = playerMoveInt;
-            asteroidMoveInt = (asteroidMoveInt * 1.1) + 0.8;
+            asteroidMoveIntX = (asteroidMoveIntX * 1.1) + 0.8;
             newMidMin = (newMidMin - 2);
             newMidMax = (newMidMax - 3);
             Thread.sleep(2000);
@@ -157,6 +208,7 @@ public class Board extends JPanel {
         }
         else {
             message = "Wave " + wave + " Starting";
+            waveText.setText("Wave: " + wave);
             first = false;
         }
     }
@@ -172,7 +224,6 @@ public class Board extends JPanel {
 
         g2d.setRenderingHint(RenderingHints.KEY_RENDERING,
                 RenderingHints.VALUE_RENDER_QUALITY);
-
 
         if (startGame){
             drawBackground(g2d);
@@ -335,9 +386,10 @@ public class Board extends JPanel {
                 gameInit = false;
                 firstAsteroid = true;
 
-                //Reset All Asteroids to Destroyed
+                //Reset All Asteroids
                 for (int k = 0; k < Features.N_OF_ROCKS; k++){
                     asteroids[k].setDestroyed(false);
+                    asteroids[k].setMovingY(false);
                 }
             }
             if (j == Features.N_OF_ROCKS && wave > waveAmount) {
@@ -403,12 +455,21 @@ public class Board extends JPanel {
             startStopwatch = false;
         }
 
-
         //After delay, begin moving first asteroid
         if (stopwatch.getElapsedTime() >= delay && !firstAsteroid){
             newAsteroid = true;
         }
         else if (stopwatch.getElapsedTime() >= firstDelay && firstAsteroid){
+
+            for (int i = 0; i < numMoveY; i++) {
+                int num = random.nextInt(Features.N_OF_ROCKS);
+                asteroids[num].setMovingY(true);
+
+                num = random.nextInt(Features.N_OF_ROCKS);
+                if (num > Features.N_OF_ROCKS / 2) {
+                    asteroids[num].setMovingUp(true);
+                }
+            }
             newAsteroid = true;
             firstAsteroid = false;
         }
@@ -429,11 +490,28 @@ public class Board extends JPanel {
         }
 
         for (int i = 0; i < Features.N_OF_ROCKS; i++) {
-            if (asteroids[i].getX() - asteroidMoveInt < Features.SIDE_EDGE) {
+
+            if (asteroids[i].isMovingY() && asteroids[i].isMoving()) {
+                if (asteroids[i].isMovingUp() && asteroids[i].getY() - asteroidMoveIntY >= 5) {
+                    asteroids[i].setY(asteroids[i].getY() - asteroidMoveIntY);
+                }
+                else if (asteroids[i].isMovingUp()){
+                    asteroids[i].setMovingUp(false);
+                }
+
+                if (!asteroids[i].isMovingUp() && asteroids[i].getY() + asteroidMoveIntY <= Features.HEIGHT - 40) {
+                    asteroids[i].setY(asteroids[i].getY() + asteroidMoveIntY);
+                }
+                else if (!asteroids[i].isMovingUp()){
+                    asteroids[i].setMovingUp(true);
+                }
+            }
+
+            if (asteroids[i].getX() - asteroidMoveIntX < Features.SIDE_EDGE) {
                 asteroids[i].setDestroyed(true);
             }
             else if (asteroids[i].isMoving()) {
-                asteroids[i].setX(asteroids[i].getX() - asteroidMoveInt);
+                asteroids[i].setX(asteroids[i].getX() - asteroidMoveIntX);
             }
         }
     }
