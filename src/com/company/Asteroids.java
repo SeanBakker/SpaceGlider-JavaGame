@@ -9,7 +9,7 @@ public class Asteroids extends SetValue {
     private boolean moving;
     private boolean movingY;
     private boolean movingUp;
-    private ImageIcon ii = new ImageIcon("src/resources/asteroid4.png");
+    private ImageIcon ii = new ImageIcon("src/resources/smallAsteroid.png");
     public double min = 1;
     public double midMin = 25;
     public double midMax = 40;

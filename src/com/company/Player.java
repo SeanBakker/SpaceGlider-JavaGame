@@ -87,8 +87,9 @@ public class Player extends SetValue  {
         }
     }
 
-    private void resetState() {
+    public void resetState() {
         x = Features.INIT_PLAYER_X;
         y = Features.INIT_PLAYER_Y;
+        moveInt = 1;
     }
 }

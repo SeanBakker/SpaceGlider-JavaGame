@@ -45,8 +45,12 @@ public class Board extends JPanel {
     private float opacity = 0.0f;
     private int numMoveY = 2;
     private int pause = 0;
+    private boolean restart = false;
     private JTextField waveText;
     private JButton pauseButton;
+    private JButton startButton;
+    private int powerWave = 0;
+    private int powerWave2 = 0;
 
     public Board() {
         initBoard();
@@ -60,7 +64,7 @@ public class Board extends JPanel {
         setLayout(null);
 
         //Start Button
-        JButton startButton = new JButton("Start Game");
+        startButton = new JButton("Start Game");
         startButton.setBounds(430,240,110,25);
         add(startButton);
         startButton.setVisible(true);
@@ -87,6 +91,8 @@ public class Board extends JPanel {
         waveText.setFocusable(false);
         waveText.setEditable(false);
 
+        timer = new Timer(Features.PERIOD, new GameCycle());
+
         pauseButton.addActionListener(e -> {
             pause++;
             if (pause % 2 != 0) {
@@ -106,9 +112,10 @@ public class Board extends JPanel {
         if (!pressedButton) {
             startButton.addActionListener(e -> {
                 pressedButton = true;
+                startGame = true;
+                resetState();
                 asteroids = new Asteroids[Features.N_OF_ROCKS];
                 powerUp = new Asteroids[Features.N_OF_ROCKS];
-                timer = new Timer(Features.PERIOD, new GameCycle());
                 timer.start();
                 gameInit();
                 remove(startButton);
@@ -154,23 +161,33 @@ public class Board extends JPanel {
 
     private void countDown() throws Exception {
 
-        if (count == 0){
+        if (count == 0 && !restart){
             message = "Welcome to Space Glider";
+            restart = true;
         }
         if (pressedButton) {
             if (count == 1) {
                 message = "3";
                 Thread.sleep(500);
-            } else if (count == 2) {
+
+                powerWave2 = random.nextInt(20);
+                pickWave(powerWave2, 5,10);
+                powerWave2 = random.nextInt(20);
+                pickWave(powerWave2,3,8);
+            }
+            else if (count == 2) {
                 message = "2";
                 Thread.sleep(1000);
-            } else if (count == 3) {
+            }
+            else if (count == 3) {
                 message = "1";
                 Thread.sleep(1000);
-            } else if (count == 4) {
+            }
+            else if (count == 4) {
                 message = "Wave 1 Starting";
                 Thread.sleep(1000);
-            } else if (count == 5) {
+            }
+            else if (count == 5) {
                 startGame = false;
                 Thread.sleep(1000);
             }
@@ -180,7 +197,10 @@ public class Board extends JPanel {
 
     private void nextWave() throws Exception{
 
-        if (wave == 7){
+        if (wave == powerWave || wave == powerWave2){
+            if (wave == powerWave2){
+                powerMoveInt = powerMoveInt + 2;
+            }
             newPowerUp = true;
             extraLife = true;
             powerType = 0;
@@ -364,6 +384,10 @@ public class Board extends JPanel {
     }
 
     private void stopGame() {
+        add(startButton);
+        startButton.setVisible(true);
+        startButton.setText("Restart");
+        pressedButton = false;
         inGame = false;
         timer.stop();
     }
@@ -376,7 +400,11 @@ public class Board extends JPanel {
             if (asteroids[i].isDestroyed()) {
                 j++;
             }
+            if (j == Features.N_OF_ROCKS && wave >= waveAmount) {
 
+                message = victory;
+                stopGame();
+            }
             if (j == Features.N_OF_ROCKS && wave < waveAmount) {
 
                 wave++;
@@ -389,11 +417,6 @@ public class Board extends JPanel {
                     asteroids[k].setDestroyed(false);
                     asteroids[k].setMovingY(false);
                 }
-            }
-            if (j == Features.N_OF_ROCKS && wave >= waveAmount) {
-
-                message = victory;
-                stopGame();
             }
         }
 
@@ -531,6 +554,53 @@ public class Board extends JPanel {
                 }
             }
         }
+    }
+
+    private void pickWave(int num, int midMin, int midMax){
+        int wave = 0;
+        int min = 1;
+        int max = 20;
+
+        if (num >= min && num <= midMin){
+            wave = 3;
+        }
+        else if (num >= midMin + 1 && num <= midMax){
+            wave = 4;
+        }
+        else if (num >= midMax + 1 && num <= max){
+            wave = 5;
+        }
+        if (powerWave == 0){
+            powerWave = wave;
+        }
+        else {
+            powerWave2 = wave + 4;
+        }
+    }
+
+    private void resetState(){
+        player.resetState();
+        delay = 800;
+        wave = 1;
+        waveText.setText("Wave: " + wave);
+        lives = 2;
+        count = 0;
+        playerMoveInt = 1;
+        numMoveY = 2;
+        asteroidMoveIntX = 3;
+        asteroidMoveIntY = 1;
+        pause = 0;
+        powerWave = 0;
+        powerWave2 = 0;
+        first = true;
+        startGame = true;
+        startStopwatch = true;
+        inGame = true;
+        gameInit = false;
+        firstAsteroid = true;
+        newMidMin = 0;
+        newMidMax = 0;
+        powerMoveInt = 1.3;
     }
 
 }
