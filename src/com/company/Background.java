@@ -52,11 +52,44 @@ public class Background extends SetValue{
             case 10:
                 ii = new ImageIcon("src/resources/wave10.jpg");
                 break;
+            case 11:
+                ii = new ImageIcon("src/resources/wave11.jpg");
+                break;
+            case 12:
+                ii = new ImageIcon("src/resources/wave12.jpg");
+                break;
+            case 13:
+                ii = new ImageIcon("src/resources/wave13.jpg");
+                break;
+            case 14:
+                ii = new ImageIcon("src/resources/wave14.jpg");
+                break;
+            case 15:
+                ii = new ImageIcon("src/resources/wave15.jpg");
+                break;
+            case 16:
+                ii = new ImageIcon("src/resources/wave16.jpg");
+                break;
+            case 17:
+                ii = new ImageIcon("src/resources/wave17.jpg");
+                break;
+            case 18:
+                ii = new ImageIcon("src/resources/wave18.jpg");
+                break;
+            case 19:
+                ii = new ImageIcon("src/resources/wave19.jpg");
+                break;
+            case 20:
+                ii = new ImageIcon("src/resources/wave20.jpg");
+                break;
             case 100:
                 ii = new ImageIcon("src/resources/victory.jpg");
                 break;
             case 101:
                 ii = new ImageIcon("src/resources/extraLife.png");
+                break;
+            case 102:
+                ii = new ImageIcon("src/resources/star.png");
                 break;
             default:
                 ii = new ImageIcon("src/resources/wave0.jpg");

@@ -20,7 +20,8 @@ public class Board extends JPanel {
     private boolean gameInit = false;
     private Random random = new Random();
     private Stopwatch stopwatch = new Stopwatch();
-    private int delay = 800;
+    private Stopwatch stopwatch2 = new Stopwatch();
+    private int delay = 1000;
     private int firstDelay = 3000;
     private boolean firstAsteroid = true;
     private double asteroidMoveIntX = 3;
@@ -29,7 +30,7 @@ public class Board extends JPanel {
     private boolean startGame = true;
     private int count = 0;
     private int wave = 1;
-    private int waveAmount = 10;
+    private int waveAmount = 20;
     private boolean newWave = false;
     private boolean first = true;
     private double newMidMin;
@@ -39,7 +40,7 @@ public class Board extends JPanel {
     private boolean newAsteroid = false;
     private boolean newPowerUp = false;
     private boolean extraLife = false;
-    private int lives = 2;
+    private int lives = 3;
     private int powerType;
     private double powerMoveInt = 1.3;
     private float opacity = 0.0f;
@@ -49,8 +50,16 @@ public class Board extends JPanel {
     private JTextField waveText;
     private JButton pauseButton;
     private JButton startButton;
-    private int powerWave = 0;
-    private int powerWave2 = 0;
+    private int extraLifeWave = 0;
+    private int starWave = 0;
+    private boolean star = false;
+    private int powerMin = 6;
+    private int powerMax = 12;
+    private boolean starEffect = false;
+    private boolean paintStar = false;
+    private int starAmount = 0;
+    private int lifeAmount = 0;
+
 
     public Board() {
         initBoard();
@@ -152,6 +161,8 @@ public class Board extends JPanel {
                     powerUp[k] = new Asteroids(j + 900, i * 40 + 5, newMidMin, newMidMax, newPowerUp, powerType);
                     powerUp[k].setDestroyed(false);
                     powerUp[k].setMoving(false);
+                    powerUp[k].setHeart(false);
+                    powerUp[k].setStar(false);
                     k++;
                 }
             }
@@ -169,11 +180,6 @@ public class Board extends JPanel {
             if (count == 1) {
                 message = "3";
                 Thread.sleep(500);
-
-                powerWave2 = random.nextInt(20);
-                pickWave(powerWave2, 5,10);
-                powerWave2 = random.nextInt(20);
-                pickWave(powerWave2,3,8);
             }
             else if (count == 2) {
                 message = "2";
@@ -195,32 +201,48 @@ public class Board extends JPanel {
         }
     }
 
-    private void nextWave() throws Exception{
+    private void nextWave() throws Exception {
 
-        if (wave == powerWave || wave == powerWave2){
-            if (wave == powerWave2){
-                powerMoveInt = powerMoveInt + 2;
+        if (wave == extraLifeWave && !first){
+            if (wave > 5){
+                powerMoveInt = powerMoveInt + 1.3;
             }
             newPowerUp = true;
             extraLife = true;
             powerType = 0;
+            lifeAmount++;
+        }
+        else if (wave == starWave && !first){
+            newPowerUp = true;
+            star = true;
+            powerType = 1;
+            starAmount++;
         }
         else {
             newPowerUp = false;
             extraLife = false;
+            star = false;
+        }
+        if (wave > starWave){
+            pickWave(0);
+        }
+        if (wave > extraLifeWave){
+            pickWave(1);
         }
         if (!first) {
             if (wave % 2 == 0){
                 numMoveY++;
             }
+            if (wave <= 15){
+                delay = delay - 45;
+                asteroidMoveIntY = asteroidMoveIntY + 0.2;
+                playerMoveInt = playerMoveInt + 0.2;
+                player.moveInt = playerMoveInt;
+                asteroidMoveIntX = (asteroidMoveIntX * 1.0) + 0.7;
+                newMidMin = (newMidMin - 1);
+                newMidMax = (newMidMax - 1);
+            }
             newWave = false;
-            delay = delay - 45;
-            asteroidMoveIntY = asteroidMoveIntY + 0.2;
-            playerMoveInt = (playerMoveInt + 0.2);
-            player.moveInt = playerMoveInt;
-            asteroidMoveIntX = (asteroidMoveIntX * 1.1) + 0.8;
-            newMidMin = (newMidMin - 2);
-            newMidMax = (newMidMax - 3);
             Thread.sleep(2000);
             gameInit();
         }
@@ -287,6 +309,7 @@ public class Board extends JPanel {
     }
 
     private void drawObjects(Graphics2D g2d) {
+        int j = 0;
 
         background = new Background(wave);
         g2d.drawImage(background.getImage(), (int) background.getX(), (int) background.getY(),
@@ -296,7 +319,30 @@ public class Board extends JPanel {
             background = new Background(101);
             g2d.drawImage(background.getImage(), i * 5 + ((int) background.getImageWidth() * (i-1)), 5,
                     (int) background.getImageWidth(), (int) background.getImageHeight(), this);
+            j = i * 5 + ((int) background.getImageWidth() * (i-1));
 
+        }
+
+        if (starEffect) {
+            if (stopwatch2.getElapsedTime() < 7000) {
+                paintStar = true;
+            }
+            else if (stopwatch2.getElapsedTime() > 7500 && stopwatch2.getElapsedTime() < 8000) {
+                paintStar = true;
+            }
+            else if (stopwatch2.getElapsedTime() > 8500 && stopwatch2.getElapsedTime() < 9000) {
+                paintStar = true;
+            }
+            else if (stopwatch2.getElapsedTime() > 9500 && stopwatch2.getElapsedTime() < 10000){
+                paintStar = true;
+            }
+
+            if (paintStar){
+                background = new Background(102);
+                g2d.drawImage(background.getImage(), j + ((int) background.getImageWidth()), 2,
+                        (int) background.getImageWidth(), (int) background.getImageHeight(), this);
+            }
+            paintStar = false;
         }
 
         g2d.drawImage(player.getImage(), (int) player.getX(), (int) player.getY(),
@@ -431,12 +477,14 @@ public class Board extends JPanel {
                 if (!asteroids[i].isDestroyed()) {
                     asteroids[i].setDestroyed(true);
                 }
-                if (lives - 1 > 0){
-                    lives--;
-                }
-                else {
-                    message = gameOver;
-                    stopGame();
+                if (!starEffect) {
+                    if (lives - 1 > 0) {
+                        lives--;
+                    }
+                    else {
+                        message = gameOver;
+                        stopGame();
+                    }
                 }
             }
 
@@ -455,9 +503,14 @@ public class Board extends JPanel {
 
                 if ((player.getRect()).intersects(powerUp[i].getRect()) && powerUp[i].isMoving()) {
 
-                    if (!powerUp[i].isDestroyed()) {
+                    if (!powerUp[i].isDestroyed() && powerUp[i].isHeart()) {
                         powerUp[i].setDestroyed(true);
                         lives++;
+                    }
+                    else if (!powerUp[i].isDestroyed() && powerUp[i].isStar()){
+                        powerUp[i].setDestroyed(true);
+                        starEffect = true;
+                        stopwatch2.start();
                     }
                 }
 
@@ -467,6 +520,12 @@ public class Board extends JPanel {
 
             }
         }
+
+        if (stopwatch2.getElapsedTime() >= 10000){
+            stopwatch2.stop();
+            starEffect = false;
+        }
+
     }
 
     private void asteroidMove(){
@@ -543,7 +602,14 @@ public class Board extends JPanel {
             if (extraLife) {
                 int num = random.nextInt(Features.N_OF_ROCKS);
                 powerUp[num].setMoving(true);
+                powerUp[num].setHeart(true);
                 extraLife = false;
+            }
+            if (star) {
+                int num = random.nextInt(Features.N_OF_ROCKS);
+                powerUp[num].setMoving(true);
+                powerUp[num].setStar(true);
+                star = false;
             }
 
             for (int i = 0; i < Features.N_OF_ROCKS; i++) {
@@ -556,42 +622,57 @@ public class Board extends JPanel {
         }
     }
 
-    private void pickWave(int num, int midMin, int midMax){
-        int wave = 0;
-        int min = 1;
-        int max = 20;
+    private void pickWave(int powerType){
+        int num = random.nextInt(20);
+        int wave;
 
-        if (num >= min && num <= midMin){
+        if (num <= powerMin){
             wave = 3;
         }
-        else if (num >= midMin + 1 && num <= midMax){
+        else if (num >= powerMin + 1 && num <= powerMax){
             wave = 4;
         }
-        else if (num >= midMax + 1 && num <= max){
+        else {
             wave = 5;
         }
-        if (powerWave == 0){
-            powerWave = wave;
+
+        if (powerType == 0) {
+            if (starAmount == 0) {
+                starWave = wave + 10;
+            } else if (starAmount == 1) {
+                starWave = wave + 13;
+            }
+            System.out.println(starWave + "-");
         }
-        else {
-            powerWave2 = wave + 4;
+        else if (powerType == 1) {
+            if (lifeAmount == 0) {
+                extraLifeWave = wave;
+            } else if (lifeAmount == 1) {
+                extraLifeWave = wave + 5;
+            } else if (lifeAmount == 2) {
+                extraLifeWave = wave + 12;
+            }
+            System.out.println(extraLifeWave);
+        }
+        if (extraLifeWave == starWave){
+            extraLifeWave++;
         }
     }
 
     private void resetState(){
         player.resetState();
-        delay = 800;
+        delay = 1000;
         wave = 1;
         waveText.setText("Wave: " + wave);
-        lives = 2;
+        lives = 3;
         count = 0;
         playerMoveInt = 1;
         numMoveY = 2;
         asteroidMoveIntX = 3;
         asteroidMoveIntY = 1;
         pause = 0;
-        powerWave = 0;
-        powerWave2 = 0;
+        extraLifeWave = 0;
+        starWave = 0;
         first = true;
         startGame = true;
         startStopwatch = true;
@@ -601,6 +682,7 @@ public class Board extends JPanel {
         newMidMin = 0;
         newMidMax = 0;
         powerMoveInt = 1.3;
+        starEffect = false;
     }
 
 }

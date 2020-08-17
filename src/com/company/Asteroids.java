@@ -9,6 +9,8 @@ public class Asteroids extends SetValue {
     private boolean moving;
     private boolean movingY;
     private boolean movingUp;
+    private boolean heart;
+    private boolean star;
     private ImageIcon ii = new ImageIcon("src/resources/smallAsteroid.png");
     public double min = 1;
     public double midMin = 25;
@@ -43,6 +45,9 @@ public class Asteroids extends SetValue {
 
         if (powerUp && powerType == 0){
             ii = new ImageIcon("src/resources/extraLife.png");
+        }
+        else if (powerUp && powerType == 1){
+            ii = new ImageIcon("src/resources/star.png");
         }
         else {
             double random = new Random().nextDouble();
@@ -91,6 +96,24 @@ public class Asteroids extends SetValue {
 
     void setMovingUp(boolean val) {
         movingUp = val;
+    }
+
+    //PowerUps
+
+    boolean isHeart() {
+        return heart;
+    }
+
+    void setHeart(boolean val) {
+        heart = val;
+    }
+
+    boolean isStar() {
+        return star;
+    }
+
+    void setStar(boolean val) {
+        star = val;
     }
 
 }

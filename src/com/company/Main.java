@@ -5,6 +5,10 @@ import java.awt.*;
 
 public class Main extends JFrame {
 
+    private ImageIcon image = new ImageIcon("src/resources/wave0.jpg");
+    public JLabel label = new JLabel(image);
+
+
     public Main() {
         initUI();
     }
@@ -20,6 +24,10 @@ public class Main extends JFrame {
         pack();
     }
 
+    public void setLabel(ImageIcon image){
+        label = new JLabel(image);
+        setContentPane(label);
+    }
     public static void main(String[] args) {
 
         EventQueue.invokeLater(() -> {
@@ -30,6 +38,7 @@ public class Main extends JFrame {
         });
     }
 }
+
 
 /*
 
