@@ -642,7 +642,6 @@ public class Board extends JPanel {
             } else if (starAmount == 1) {
                 starWave = wave + 13;
             }
-            System.out.println(starWave + "-");
         }
         else if (powerType == 1) {
             if (lifeAmount == 0) {
@@ -652,7 +651,6 @@ public class Board extends JPanel {
             } else if (lifeAmount == 2) {
                 extraLifeWave = wave + 12;
             }
-            System.out.println(extraLifeWave);
         }
         if (extraLifeWave == starWave){
             extraLifeWave++;
