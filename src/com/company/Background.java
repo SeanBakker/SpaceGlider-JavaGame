@@ -83,7 +83,7 @@ public class Background extends SetValue{
                 ii = new ImageIcon("src/resources/wave20.jpg");
                 break;
             case 100:
-                ii = new ImageIcon("src/resources/victory.jpg");
+                ii = new ImageIcon("src/resources/victorygif.gif");
                 break;
             case 101:
                 ii = new ImageIcon("src/resources/extraLife.png");

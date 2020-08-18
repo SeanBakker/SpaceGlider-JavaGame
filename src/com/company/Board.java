@@ -10,7 +10,7 @@ public class Board extends JPanel {
     //Variables
     public Timer timer;
     private String message = "null";
-    private String victory = "Victory";
+    private String victory = "Victory!";
     private String gameOver = "Game Over";
     private Player player;
     private Background background;
