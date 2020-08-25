@@ -15,7 +15,6 @@ public class Board extends JPanel {
     public Timer timer;
     private String message = "null";
     private final String victory = "Victory!";
-    private String gameOver = "Game Over";
     private Player player;
     private Background background;
     public Asteroids[] asteroids;
@@ -26,7 +25,6 @@ public class Board extends JPanel {
     private final Stopwatch stopwatch = new Stopwatch();
     private final Stopwatch stopwatch2 = new Stopwatch();
     private int delay = 1000;
-    private int firstDelay = 3000;
     private boolean firstAsteroid = true;
     private double asteroidMoveIntX = 3;
     private double asteroidMoveIntY = 1;
@@ -34,7 +32,6 @@ public class Board extends JPanel {
     private boolean startGame = true;
     private int count = 0;
     private int wave = 1;
-    private int waveAmount = 20;
     private boolean newWave = false;
     private boolean first = true;
     private double newMidMin;
@@ -57,18 +54,16 @@ public class Board extends JPanel {
     private int extraLifeWave = 0;
     private int starWave = 0;
     private boolean star = false;
-    private int powerMin = 6;
-    private int powerMax = 12;
     private boolean starEffect = false;
     private boolean paintStar = false;
     private int starAmount = 0;
     private int lifeAmount = 0;
 
-
     public Board() {
         initBoard();
     }
 
+    //Initialize Board properties
     private void initBoard() {
 
         addKeyListener(new TAdapter());
@@ -104,8 +99,10 @@ public class Board extends JPanel {
         waveText.setFocusable(false);
         waveText.setEditable(false);
 
+        //Create timer for game cycle
         timer = new Timer(Features.PERIOD, new GameCycle());
 
+        //Pause button action listener to stop/start timer when pressed
         pauseButton.addActionListener(e -> {
             pause++;
             if (pause % 2 != 0) {
@@ -122,6 +119,7 @@ public class Board extends JPanel {
 
         player = new Player();
 
+        //Start button action listener to start game once button is pressed
         if (!pressedButton) {
             startButton.addActionListener(e -> {
                 pressedButton = true;
@@ -138,10 +136,12 @@ public class Board extends JPanel {
         }
     }
 
+    //Initialize asteroids and power-ups each round
     private void gameInit() {
 
         int k = 0;
 
+        //For loops to set asteroid positions
         for (int i = 0; i < 10; i++) {
 
             for (int j = 0; j < 2; j++) {
@@ -157,6 +157,7 @@ public class Board extends JPanel {
 
         k = 0;
 
+        //For loops to have power-up replace asteroid when newPowerUp is true
         if (newPowerUp){
             for (int i = 0; i < 10; i++) {
 
@@ -174,12 +175,14 @@ public class Board extends JPanel {
         gameInit = true;
     }
 
+    //CountDown method for displaying countdown at the beginning of the game
     private void countDown() throws Exception {
 
         if (count == 0 && !restart){
             message = "Welcome to Space Glider";
             restart = true;
         }
+        //Allows countdown to replay after restart button is clicked
         if (pressedButton) {
             if (count == 1) {
                 message = "3";
@@ -205,9 +208,12 @@ public class Board extends JPanel {
         }
     }
 
+    //NextWave method controls all required changes after each wave is complete
     private void nextWave() throws Exception {
 
+        //Add extraLife power-up when wave equals extraLifeWave
         if (wave == extraLifeWave && !first){
+            //Increase speed of power-ups after wave 5
             if (wave > 5){
                 powerMoveInt = powerMoveInt + 1.3;
             }
@@ -216,23 +222,28 @@ public class Board extends JPanel {
             powerType = 0;
             lifeAmount++;
         }
+        //Add star power-up when wave equals starWave
         else if (wave == starWave && !first){
             newPowerUp = true;
             star = true;
             powerType = 1;
             starAmount++;
         }
+        //Set variables to false if there are no power-ups
         else {
             newPowerUp = false;
             extraLife = false;
             star = false;
         }
+        //Pick new starWave after previous one has passed
         if (wave > starWave){
             pickWave(0);
         }
+        //Pick new extraLifeWave after previous one has passed
         if (wave > extraLifeWave){
             pickWave(1);
         }
+        //Change variables each wave
         if (!first) {
             if (wave % 2 == 0){
                 numMoveY++;
@@ -250,6 +261,7 @@ public class Board extends JPanel {
             Thread.sleep(2000);
             gameInit();
         }
+        //set text for next wave starting
         else {
             message = "Wave " + wave + " Starting";
             waveText.setText("Wave: " + wave);
@@ -257,6 +269,7 @@ public class Board extends JPanel {
         }
     }
 
+    //PaintComponent method for controlling the painting of images
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -269,6 +282,7 @@ public class Board extends JPanel {
         g2d.setRenderingHint(RenderingHints.KEY_RENDERING,
                 RenderingHints.VALUE_RENDER_QUALITY);
 
+        //Run at beginning of game to display background/countDown
         if (startGame){
             drawBackground(g2d);
             try {
@@ -279,6 +293,7 @@ public class Board extends JPanel {
             }
             paintText2D(g2d);
         }
+        //In between waves repaint background and display nextWave text
         else if (newWave){
             drawBackground(g2d);
             try{
@@ -288,6 +303,7 @@ public class Board extends JPanel {
             }
             paintText2D(g2d);
         }
+        //While in game drawObjects will paint images for game
         else if (inGame) {
             drawObjects(g2d);
             first = true;
@@ -299,6 +315,7 @@ public class Board extends JPanel {
         Toolkit.getDefaultToolkit().sync();
     }
 
+    //Draws background while in between waves or after victory
     private void drawBackground(Graphics2D g2d) {
         if (message.equals(victory)){
             background = new Background(100);
@@ -310,13 +327,16 @@ public class Board extends JPanel {
                 (int) background.getImageWidth(), (int) background.getImageHeight(), this);
     }
 
+    //Draws images for game
     private void drawObjects(Graphics2D g2d) {
         int j = 0;
 
+        //Paint background for each wave
         background = new Background(wave);
         g2d.drawImage(background.getImage(), (int) background.getX(), (int) background.getY(),
                 (int) background.getImageWidth(), (int) background.getImageHeight(), this);
 
+        //Paint hearts for how many lives remain
         for (int i = 1; i <= lives; i++){
             background = new Background(101);
             g2d.drawImage(background.getImage(), i * 5 + ((int) background.getImageWidth() * (i-1)), 5,
@@ -325,6 +345,7 @@ public class Board extends JPanel {
 
         }
 
+        //Timer for how long starEffect lasts / controls flashing effect of star
         if (starEffect) {
             if (stopwatch2.getElapsedTime() < 7000) {
                 paintStar = true;
@@ -339,6 +360,7 @@ public class Board extends JPanel {
                 paintStar = true;
             }
 
+            //Paint star power-up
             if (paintStar){
                 background = new Background(102);
                 g2d.drawImage(background.getImage(), j + ((int) background.getImageWidth()), 2,
@@ -347,18 +369,23 @@ public class Board extends JPanel {
             paintStar = false;
         }
 
+        //Draw player spaceship
         g2d.drawImage(player.getImage(), (int) player.getX(), (int) player.getY(),
                 (int) player.getImageWidth(), (int) player.getImageHeight(), this);
 
+        //Paint asteroids
         for (int i = 0; i < Features.N_OF_ROCKS; i++) {
 
+            //Set opacity of asteroids while moving
             if (!asteroids[i].isDestroyed() && asteroids[i].isMoving()){
                 opacity = 1.0f;
             }
+            //Set opacity of asteroids while not moving
             else if (!asteroids[i].isDestroyed() && !asteroids[i].isMoving()){
                 opacity = 0.0f;
             }
 
+            //Draw asteroids when not destroyed
             if (!asteroids[i].isDestroyed()) {
                 g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
                 g2d.drawImage(asteroids[i].getImage(), (int) asteroids[i].getX(),
@@ -368,6 +395,7 @@ public class Board extends JPanel {
             }
         }
 
+        //Repeat drawing of asteroids for power-ups
         if (newPowerUp && gameInit) {
             for (int i = 0; i < Features.N_OF_ROCKS; i++) {
 
@@ -388,6 +416,7 @@ public class Board extends JPanel {
         }
     }
 
+    //Display message in center of jframe
     private void paintText2D(Graphics2D g2d) {
 
         Font font = new Font("Arial Black", Font.BOLD, 30);
@@ -400,6 +429,7 @@ public class Board extends JPanel {
                 Features.HEIGHT / 2);
     }
 
+    //Check for key input of player
     private class TAdapter extends KeyAdapter {
 
         @Override
@@ -421,6 +451,7 @@ public class Board extends JPanel {
         }
     }
 
+    //Move all objects during gameCycle / check their collision / repaint images
     private void doGameCycle() {
         player.move();
         asteroidMove();
@@ -431,6 +462,7 @@ public class Board extends JPanel {
         repaint();
     }
 
+    //Stop game timer and display restart button
     private void stopGame() {
         add(startButton);
         startButton.setVisible(true);
@@ -440,7 +472,9 @@ public class Board extends JPanel {
         timer.stop();
     }
 
+    //Check for collision with asteroids/power-ups
     private void checkCollision() {
+        int waveAmount = 20;
 
         //Check if all asteroids have been destroyed
         for (int i = 0, j = 0; i < Features.N_OF_ROCKS; i++) {
@@ -448,11 +482,12 @@ public class Board extends JPanel {
             if (asteroids[i].isDestroyed()) {
                 j++;
             }
+            //Stop game if all asteroids are destroyed and player is on last wave
             if (j == Features.N_OF_ROCKS && wave >= waveAmount) {
-
                 message = victory;
                 stopGame();
             }
+            //Begin next wave if all asteroids are destroyed, but player is not on last wave
             if (j == Features.N_OF_ROCKS && wave < waveAmount) {
 
                 wave++;
@@ -474,28 +509,33 @@ public class Board extends JPanel {
                 asteroids[i].setX(Features.WIDTH);
             }
 
+            //Check for collision between player and asteroids
             if ((player.getRect()).intersects(asteroids[i].getRect())) {
 
                 if (!asteroids[i].isDestroyed()) {
                     asteroids[i].setDestroyed(true);
                 }
+                //Player looses a life if they do not have starEffect active
                 if (!starEffect) {
                     if (lives - 1 > 0) {
                         lives--;
                     }
+                    //Game stops if player has no more lives
                     else {
-                        message = gameOver;
+                        message = "Game Over";
                         stopGame();
                     }
                 }
             }
 
+            //Asteroids are destroyed when they reach the side edge
             if (asteroids[i].getRect().getX() == Features.SIDE_EDGE){
                 asteroids[i].setDestroyed(true);
             }
 
         }
 
+        //Check for collision between player and power-up
         if (newPowerUp && gameInit) {
             for (int i = 0; i < Features.N_OF_ROCKS; i++) {
 
@@ -505,17 +545,21 @@ public class Board extends JPanel {
 
                 if ((player.getRect()).intersects(powerUp[i].getRect()) && powerUp[i].isMoving()) {
 
+                    //Player's lives increase if they collide with extraLife power-up
                     if (!powerUp[i].isDestroyed() && powerUp[i].isHeart()) {
                         powerUp[i].setDestroyed(true);
                         lives++;
                     }
+                    //StarEffect is true if player collides with star power-up
                     else if (!powerUp[i].isDestroyed() && powerUp[i].isStar()){
                         powerUp[i].setDestroyed(true);
                         starEffect = true;
+                        //stopwatch2 keeps track of time for star power-up
                         stopwatch2.start();
                     }
                 }
 
+                //Power-ups are destroyed when they reach the side edge
                 if (powerUp[i].getRect().getX() == Features.SIDE_EDGE) {
                     powerUp[i].setDestroyed(true);
                 }
@@ -523,6 +567,7 @@ public class Board extends JPanel {
             }
         }
 
+        //Star power-up is no longer active after 10 seconds
         if (stopwatch2.getElapsedTime() >= 10000){
             stopwatch2.stop();
             starEffect = false;
@@ -530,23 +575,27 @@ public class Board extends JPanel {
 
     }
 
+    //Method for moving asteroids
     private void asteroidMove(){
+        int firstDelay = 3000;
 
         if (startStopwatch){
             stopwatch.start();
             startStopwatch = false;
         }
 
-        //After delay, begin moving first asteroid
+        //Begin moving asteroid after delay of stopwatch
         if (stopwatch.getElapsedTime() >= delay && !firstAsteroid){
             newAsteroid = true;
         }
         else if (stopwatch.getElapsedTime() >= firstDelay && firstAsteroid){
 
+            //Pick asteroid to move using random num
             for (int i = 0; i < numMoveY; i++) {
                 int num = random.nextInt(Features.N_OF_ROCKS);
                 asteroids[num].setMovingY(true);
 
+                //Chance of asteroid moving up or down
                 num = random.nextInt(Features.N_OF_ROCKS);
                 if (num > Features.N_OF_ROCKS / 2) {
                     asteroids[num].setMovingUp(true);
@@ -558,9 +607,11 @@ public class Board extends JPanel {
 
         if (newAsteroid){
 
+            //Set random asteroid moving in X direction when newAsteroid = true
             int num = random.nextInt(Features.N_OF_ROCKS);
             asteroids[num].setMoving(true);
 
+            //Keep choosing new asteroid if previous has already been destroyed
             while (asteroids[num].isDestroyed()){
                 num = random.nextInt(Features.N_OF_ROCKS);
                 asteroids[num].setMoving(true);
@@ -571,24 +622,31 @@ public class Board extends JPanel {
             newAsteroid = false;
         }
 
+        //For loop to move asteroids
         for (int i = 0; i < Features.N_OF_ROCKS; i++) {
 
+            //Move asteroids in Y direction
             if (asteroids[i].isMovingY() && asteroids[i].isMoving()) {
+                //Move asteroid up until top border
                 if (asteroids[i].isMovingUp() && asteroids[i].getY() - asteroidMoveIntY >= 5) {
                     asteroids[i].setY(asteroids[i].getY() - asteroidMoveIntY);
                 }
+                //Change direction after hitting top border
                 else if (asteroids[i].isMovingUp()){
                     asteroids[i].setMovingUp(false);
                 }
 
+                //Move asteroid down until bottom border
                 if (!asteroids[i].isMovingUp() && asteroids[i].getY() + asteroidMoveIntY <= Features.HEIGHT - 40) {
                     asteroids[i].setY(asteroids[i].getY() + asteroidMoveIntY);
                 }
+                //Change direction after hitting bottom border
                 else if (!asteroids[i].isMovingUp()){
                     asteroids[i].setMovingUp(true);
                 }
             }
 
+            //Move asteroids forward in X direction until the side edge
             if (asteroids[i].getX() - asteroidMoveIntX < Features.SIDE_EDGE) {
                 asteroids[i].setDestroyed(true);
             }
@@ -598,15 +656,18 @@ public class Board extends JPanel {
         }
     }
 
+    //Method for moving power-ups
     private void powerUpMove() {
 
         if (gameInit) {
+            //Set random asteroid to extraLife power-up
             if (extraLife) {
                 int num = random.nextInt(Features.N_OF_ROCKS);
                 powerUp[num].setMoving(true);
                 powerUp[num].setHeart(true);
                 extraLife = false;
             }
+            //Set random asteroid to star power-up
             if (star) {
                 int num = random.nextInt(Features.N_OF_ROCKS);
                 powerUp[num].setMoving(true);
@@ -614,6 +675,7 @@ public class Board extends JPanel {
                 star = false;
             }
 
+            //Move power-ups until side edge
             for (int i = 0; i < Features.N_OF_ROCKS; i++) {
                 if (powerUp[i].getX() - powerMoveInt < Features.SIDE_EDGE) {
                     powerUp[i].setDestroyed(true);
@@ -624,21 +686,27 @@ public class Board extends JPanel {
         }
     }
 
-    private void pickWave(int powerType){
+    //Method for randomizing power-up waves
+    private void pickWave(int powerType) {
         int num = random.nextInt(20);
         int wave;
+        int powerMin = 6;
+        int powerMax = 12;
 
-        if (num <= powerMin){
+        //Pick wave based on random num
+        if (num < powerMin) {
             wave = 3;
         }
-        else if (num >= powerMin + 1 && num <= powerMax){
+        else if (num >= powerMin + 1 && num <= powerMax) {
             wave = 4;
         }
         else {
             wave = 5;
         }
 
+        //Choose power-up type based on powerType
         if (powerType == 0) {
+            //Add to starWave to have power-up arrive in later waves
             if (starAmount == 0) {
                 starWave = wave + 10;
             } else if (starAmount == 1) {
@@ -648,18 +716,22 @@ public class Board extends JPanel {
         else if (powerType == 1) {
             if (lifeAmount == 0) {
                 extraLifeWave = wave;
-            } else if (lifeAmount == 1) {
+            }
+            //Add to extraLifeWave to have power-up arrive in later waves
+            else if (lifeAmount == 1) {
                 extraLifeWave = wave + 5;
             } else if (lifeAmount == 2) {
                 extraLifeWave = wave + 12;
             }
         }
-        if (extraLifeWave == starWave){
+        //Check for power-ups on the same wave
+        if (extraLifeWave == starWave) {
             extraLifeWave++;
         }
     }
 
-    private void resetState(){
+    //Method for resetting state of all variables
+    private void resetState() {
         player.resetState();
         delay = 1000;
         wave = 1;
