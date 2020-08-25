@@ -1,5 +1,6 @@
 package com.company;
 
+//Interface defining general constants
 public interface Features {
 
     int WIDTH = 1000;

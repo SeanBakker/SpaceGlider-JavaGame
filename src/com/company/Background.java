@@ -2,26 +2,29 @@ package com.company;
 
 import javax.swing.*;
 
-public class Background extends SetValue{
+/*
+Background class for setting and loading background images
+ */
 
-    private ImageIcon ii = new ImageIcon("src/resources/wave0.jpg");
+public class Background extends SetValue{
 
     public Background(int wave) {
         initBackground(wave);
     }
 
+    //Initialize background image
     public void initBackground(int wave) {
         loadImage(wave);
         getImageDimensions();
         resetState();
     }
 
+    //Load background image for each wave
     private void loadImage(int wave) {
+        ImageIcon ii;
 
+        //Set corresponding background to wave num
         switch (wave){
-            case 0:
-                ii = new ImageIcon("src/resources/wave0.jpg");
-                break;
             case 1:
                 ii = new ImageIcon("src/resources/wave1.jpg");
                 break;
@@ -98,6 +101,7 @@ public class Background extends SetValue{
         image = ii.getImage();
     }
 
+    //Reset background state
     private void resetState() {
         x = Features.INIT_BACKGROUND_X;
         y = Features.INIT_BACKGROUND_Y;

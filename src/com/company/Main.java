@@ -9,6 +9,7 @@ public class Main extends JFrame {
         initUI();
     }
 
+    //Initialize board and jframe
     private void initUI() {
 
         add(new Board());
@@ -19,7 +20,8 @@ public class Main extends JFrame {
         setVisible(true);
         pack();
     }
-    
+
+    //Run game
     public static void main(String[] args) {
 
         EventQueue.invokeLater(() -> {

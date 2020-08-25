@@ -5,12 +5,16 @@ import java.awt.event.*;
 import java.util.Random;
 import javax.swing.*;
 
+/*
+Board class for all general game functions
+ */
+
 public class Board extends JPanel {
 
     //Variables
     public Timer timer;
     private String message = "null";
-    private String victory = "Victory!";
+    private final String victory = "Victory!";
     private String gameOver = "Game Over";
     private Player player;
     private Background background;
@@ -18,9 +22,9 @@ public class Board extends JPanel {
     public Asteroids[] powerUp;
     private boolean inGame = true;
     private boolean gameInit = false;
-    private Random random = new Random();
-    private Stopwatch stopwatch = new Stopwatch();
-    private Stopwatch stopwatch2 = new Stopwatch();
+    private final Random random = new Random();
+    private final Stopwatch stopwatch = new Stopwatch();
+    private final Stopwatch stopwatch2 = new Stopwatch();
     private int delay = 1000;
     private int firstDelay = 3000;
     private boolean firstAsteroid = true;
@@ -298,14 +302,12 @@ public class Board extends JPanel {
     private void drawBackground(Graphics2D g2d) {
         if (message.equals(victory)){
             background = new Background(100);
-            g2d.drawImage(background.getImage(), (int) background.getX(), (int) background.getY(),
-                    (int) background.getImageWidth(), (int) background.getImageHeight(), this);
         }
         else {
             background = new Background(0);
-            g2d.drawImage(background.getImage(), (int) background.getX(), (int) background.getY(),
-                    (int) background.getImageWidth(), (int) background.getImageHeight(), this);
         }
+        g2d.drawImage(background.getImage(), (int) background.getX(), (int) background.getY(),
+                (int) background.getImageWidth(), (int) background.getImageHeight(), this);
     }
 
     private void drawObjects(Graphics2D g2d) {
