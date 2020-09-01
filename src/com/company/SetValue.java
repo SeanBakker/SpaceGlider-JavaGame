@@ -10,10 +10,10 @@ SetValue class for dealing with image dimensions and setting/getting x and y val
 public class SetValue {
 
     //Variables
-    double x;
-    double y;
-    double imageWidth;
-    double imageHeight;
+    double x; //Value for x of required image
+    double y; //Value for y of required image
+    double imageWidth; //Value for imageWidth of required image
+    double imageHeight; //Value for imageHeight of required image
     Image image;
 
     //Set x value
@@ -51,7 +51,7 @@ public class SetValue {
         return image;
     }
 
-    //Get rectangle around image
+    //Get rectangle around image using its dimensions
     Rectangle2D getRect() {
         return new Rectangle2D.Double(x, y,
                 image.getWidth(null), image.getHeight(null));
@@ -59,8 +59,8 @@ public class SetValue {
 
     //Get image dimensions
     void getImageDimensions() {
-        imageWidth = image.getWidth(null);
-        imageHeight = image.getHeight(null);
+        imageWidth = image.getWidth(null); //Get image width
+        imageHeight = image.getHeight(null); //Get image height
     }
 
 }

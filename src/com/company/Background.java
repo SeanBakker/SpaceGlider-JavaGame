@@ -8,20 +8,21 @@ Background class for setting and loading background images
 
 public class Background extends SetValue{
 
+    //Constructor to initialize background (uses wave parameter to output specific wave image)
     public Background(int wave) {
         initBackground(wave);
     }
 
     //Initialize background image
     public void initBackground(int wave) {
-        loadImage(wave);
-        getImageDimensions();
-        resetState();
+        loadImage(wave); //Load background image using wave number
+        getImageDimensions(); //Get image dimensions for background
+        resetState(); //Reset state of background
     }
 
     //Load background image for each wave
     private void loadImage(int wave) {
-        ImageIcon ii;
+        ImageIcon ii; //Create new image icon
 
         //Set corresponding background to wave num
         switch (wave){
@@ -85,25 +86,25 @@ public class Background extends SetValue{
             case 20:
                 ii = new ImageIcon("src/resources/wave20.jpg");
                 break;
-            case 100:
+            case 100: //Use case 100 for printing victory gif
                 ii = new ImageIcon("src/resources/victorygif.gif");
                 break;
-            case 101:
+            case 101: //Use case 101 for extraLife images in top left
                 ii = new ImageIcon("src/resources/extraLife.png");
                 break;
-            case 102:
+            case 102: //Use case 102 for star image in top left
                 ii = new ImageIcon("src/resources/star.png");
                 break;
-            default:
+            default: //Set default background to waiting screen
                 ii = new ImageIcon("src/resources/wave0.jpg");
                 break;
         }
-        image = ii.getImage();
+        image = ii.getImage(); //Set "image" to selected background image
     }
 
     //Reset background state
     private void resetState() {
-        x = Features.INIT_BACKGROUND_X;
-        y = Features.INIT_BACKGROUND_Y;
+        x = Features.INIT_BACKGROUND_X; //Reset background x value
+        y = Features.INIT_BACKGROUND_Y; //Reset background y value
     }
 }
