@@ -16,6 +16,8 @@ public class Asteroids extends SetValue {
     private boolean movingUp; //Used when asteroid is moving upwards
     private boolean heart; //Used when asteroid is a heart power-up
     private boolean star; //Used when asteroid is a star power-up
+    private boolean bigMushroom; //Used when asteroid is a bigMushroom power-up
+    private boolean smallMushroom; //Used when asteroid is a smallMushroom power-up
     private ImageIcon ii = new ImageIcon("src/resources/smallAsteroid.png"); //Set default image icon for asteroid images
     //Values for percentage of which asteroid will get picked (small, medium, big)
     public double min = 1;
@@ -59,6 +61,12 @@ public class Asteroids extends SetValue {
         }
         else if (powerUp && powerType == 1){ //PowerType == 1 loads star image
             ii = new ImageIcon("src/resources/star.png");
+        }
+        else if (powerUp && powerType == 2){ //PowerType == 2 loads bigMushroom image
+            ii = new ImageIcon("src/resources/bigMushroom.png");
+        }
+        else if (powerUp && powerType == 3){ //PowerType == 3 loads smallMushroom image
+            ii = new ImageIcon("src/resources/smallMushroom.png");
         }
         //Load asteroids if there are no power-ups
         else {
@@ -129,6 +137,22 @@ public class Asteroids extends SetValue {
     //Set asteroid to a star power-up
     void setStar(boolean val) {
         star = val;
+    }
+    //Check if asteroid is a bigMushroom power-up
+    boolean isBigMushroom() {
+        return bigMushroom;
+    }
+    //Set asteroid to a bigMushroom power-up
+    void setBigMushroom(boolean val) {
+        bigMushroom = val;
+    }
+    //Check if asteroid is a smallMushroom power-up
+    boolean isSmallMushroom() {
+        return smallMushroom;
+    }
+    //Set asteroid to a smallMushroom power-up
+    void setSmallMushroom(boolean val) {
+        smallMushroom = val;
     }
 
 }

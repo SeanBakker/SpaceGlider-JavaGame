@@ -15,20 +15,35 @@ public class Player extends SetValue  {
     public double moveInt = 1; //Variable for speed of player
 
     //Constructor to initialize player
-    public Player() {
-        initSpaceship();
+    public Player(int playerSize, double playerMoveInt, boolean init) {
+        initSpaceship(playerSize, playerMoveInt, init);
     }
 
     //Initialize player spaceship
-    private void initSpaceship() {
-        loadImage(); //Load image of player
+    private void initSpaceship(int playerSize, double playerMoveInt, boolean init) {
+        loadImage(playerSize); //Load image of player
         getImageDimensions(); //Get image dimensions of player
-        resetState(); //Reset state of player
+        moveInt = playerMoveInt; //Set new moveInt speed for player
+        x = Features.INIT_PLAYER_X; //Reset player x value
+        y = Features.INIT_PLAYER_Y; //Reset player y value
+        if (init) {
+            resetState(); //Reset State of player at the beginning of game
+        }
     }
 
     //Load image for spaceship
-    private void loadImage() {
-        ImageIcon ii = new ImageIcon("src/resources/spaceship.png"); //Load image spaceship
+    private void loadImage(int playerSize) {
+        ImageIcon ii = new ImageIcon("src/resources/spaceship.png"); //Set default image for spaceship;
+
+        if (playerSize == 0){
+            ii = new ImageIcon("src/resources/spaceship.png"); //Load image spaceship
+        }
+        else if (playerSize == 1){
+            ii = new ImageIcon("src/resources/smallSpaceship.png"); //Load image smallSpaceship
+        }
+        else if (playerSize == 2){
+            ii = new ImageIcon("src/resources/bigSpaceship.png"); //Load image bigSpaceship
+        }
         image = ii.getImage(); //Set "image" to new selected image
     }
 

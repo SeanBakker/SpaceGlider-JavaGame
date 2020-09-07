@@ -1,5 +1,6 @@
 package com.company;
 
+import javax.swing.*;
 import java.awt.Image;
 import java.awt.geom.Rectangle2D;
 

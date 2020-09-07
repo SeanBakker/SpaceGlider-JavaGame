@@ -39,9 +39,13 @@ public class Board extends JPanel {
     private boolean newPowerUp = false; //If a new power-up wave should be chosen
     private boolean extraLife = false; //If a heart power-up should be released
     private boolean star = false; //If a star power-up should be released
+    private boolean bigMushroom = false; //If a bigMushroom power-up should be released
+    private boolean smallMushroom = false; //If a smallMushroom power-up should be released
     private boolean restart = false; //If program has been restarted after completion
     private boolean starEffect = false; //If star power-up effect is currently active
     private boolean paintStar = false; //If star power-up should be painted in top left corner
+    private boolean paintBigMushroom = false; //If bigMushroom power-up should be painted in top left corner
+    private boolean paintSmallMushroom = false; //If smallMushroom power-up should be painted in top left corner
 
     //Integers & Doubles
     private int delay = 0; //Delay in between choosing asteroids to move
@@ -55,9 +59,16 @@ public class Board extends JPanel {
     private int starWave = 0; //Wave at which the star power-up will appear
     private int starAmount = 0; //Keep track of number of star power-ups
     private int lifeAmount = 0; //Keep track of number of heart power-ups
+    private int playerSize = 0; //Size of player spaceship
+    private int bigMushroomWave = 0; //Wave at which the bigMushroom power-up will appear
+    private int smallMushroomWave = 0; //Wave at which the smallMushroom power-up will appear
+    private int lastMushroomWave = 0; //Wave at which last mushroom power-up was collided with
+    private int bigMushroomAmount = 0; //Keep track of number of bigMushroom power-ups
+    private int smallMushroomAmount = 0; //Keep track of number of smallMushroom power-ups
     private double asteroidMoveIntX = 0; //Speed of asteroids in X direction
     private double asteroidMoveIntY = 0; //Speed of asteroids in Y direction
     private double powerMoveInt = 0; //Value for speed of power-ups
+    private double mushroomMoveInt = 0; //Speed of mushroom power-ups
     private double newMidMin = 0; //Percentage of size of asteroids
     private double newMidMax = 0; //Percentage of size of asteroids
     private double playerMoveInt = 0; //Speed of player
@@ -122,7 +133,7 @@ public class Board extends JPanel {
             }
         });
 
-        player = new Player(); //Initialize player object
+        player = new Player(playerSize, playerMoveInt, true); //Initialize player object
 
         //Start button action listener to start game once button is pressed
         if (!pressedButton) { //Only trigger if button has not yet been pressed
@@ -177,10 +188,20 @@ public class Board extends JPanel {
                     powerUp[k].setMoving(false); //Set power-up to not be moving
                     powerUp[k].setHeart(false); //Set power-up to not be a heart
                     powerUp[k].setStar(false); //Set power-up to not be a star
+                    powerUp[k].setBigMushroom(false); //Set power-up to not be a bigMushroom
+                    powerUp[k].setSmallMushroom(false); //Set power-up to not be a smallMushroom
                     k++; //Increase k value
                 }
             }
         }
+
+        //Set playerSize to 0 when there are no active mushroom power-ups
+        if (wave - 1 > lastMushroomWave){
+            playerSize = 0;
+        }
+
+        player = new Player(playerSize, playerMoveInt, false); //Initialize player object
+
         gameInit = true; //Game has now been initialized
     }
 
@@ -219,27 +240,38 @@ public class Board extends JPanel {
 
     //NextWave method controls all required changes after each wave is complete
     private void nextWave() throws Exception {
+        newPowerUp = true; //Release new power-up
 
         //Add extraLife power-up when wave equals extraLifeWave
         if (wave == extraLifeWave && !first){
             if (wave > 5){ //Increase speed of power-ups after wave 5
                 powerMoveInt = powerMoveInt + 1.3;
             }
-            newPowerUp = true; //Release new power-up
             extraLife = true; //Set new power-up to a heart
             powerType = 0; //Set powerType = 0 for heart
             lifeAmount++; //Increase amount of hearts that have been released
         }
         else if (wave == starWave && !first){ //Add star power-up when wave equals starWave
-            newPowerUp = true; //Release new power-up
             star = true; //Set new power-up to a star
             powerType = 1; //Set powerType = 1 for star
             starAmount++; //Increase amount of stars that have been released
+        }
+        else if (wave == bigMushroomWave && !first) { //Add bigMushroom power-up when wave equals bigMushroomWave
+            bigMushroom = true; //Set new power-up to a bigMushroom
+            powerType = 2; //Set powerType = 2 for bigMushroom
+            bigMushroomAmount++; //Increase amount of bigMushrooms that have been released
+        }
+        else if (wave == smallMushroomWave && !first) { //Add smallMushroom power-up when wave equals smallMushroomWave
+            smallMushroom = true; //Set new power-up to a smallMushroom
+            powerType = 3; //Set powerType = 3 for smallMushroom
+            smallMushroomAmount++; //Increase amount of smallMushrooms that have been released
         }
         else { //Set variables to false if there are no power-ups
             newPowerUp = false; //Don't release any power-ups
             extraLife = false; //Set extraLife to false
             star = false; //Set star to false
+            bigMushroom = false; //Set bigMushroom to false
+            smallMushroom = false; //Set smallMushroom to false
         }
         //Pick new starWave after previous one has passed
         if (wave > starWave){
@@ -249,6 +281,14 @@ public class Board extends JPanel {
         if (wave > extraLifeWave){
             pickWave(1); //Call pickWave method to pick new extraLifeWave
         }
+        //Pick new bigMushroomWave after previous one has passed
+        if (wave > bigMushroomWave){
+            pickWave(2); //Call pickWave method to pick new bigMushroomWave
+        }
+        //Pick new smallMushroomWave after previous one has passed
+        if (wave > smallMushroomWave){
+            pickWave(3); //Call pickWave method to pick new smallMushroomWave
+        }
         //Change variables each wave
         if (!first) { //Execute on second loop through nextWave method
             if (wave % 2 == 0){ //Increase number of asteroids moving in Y direction every two waves that pass
@@ -257,8 +297,7 @@ public class Board extends JPanel {
             if (wave <= 15){ //Change all variables for asteroids and player up until wave 16
                 delay = delay - 45;
                 asteroidMoveIntY = asteroidMoveIntY + 0.2;
-                playerMoveInt = playerMoveInt + 0.2;
-                player.moveInt = playerMoveInt;
+                playerMoveInt = playerMoveInt + 0.15;
                 asteroidMoveIntX = (asteroidMoveIntX * 1.0) + 0.7;
                 newMidMin = (newMidMin - 1);
                 newMidMax = (newMidMax - 1);
@@ -273,7 +312,6 @@ public class Board extends JPanel {
             first = false; //After first loop, set "first" to false
         }
     }
-
 
     //PaintComponent method for controlling the painting of images
     @Override
@@ -375,9 +413,29 @@ public class Board extends JPanel {
                 g2d.drawImage(background.getImage(), j + ((int) background.getImageWidth()), 2,
                         (int) background.getImageWidth(), (int) background.getImageHeight(), this);
             }
+
             paintStar = false; //Stop painting star
         }
 
+        //Paint bigMushroom power-up
+        if (paintBigMushroom){
+            background = new Background(103); //Create new background object with bigMushroom image
+            //Draw bigMushroom beside the last image in top left corner
+            g2d.drawImage(background.getImage(), 500 + ((int) background.getImageWidth()), 2,
+                    (int) background.getImageWidth() - 60, (int) background.getImageHeight() - 50, this);
+        }
+        //Paint smallMushroom power-up
+        if (paintSmallMushroom){
+            background = new Background(104); //Create new background object with smallMushroom image
+            //Draw smallMushroom beside the last image in top left corner
+            g2d.drawImage(background.getImage(), 600 + ((int) background.getImageWidth()), 2,
+                    (int) background.getImageWidth() + 10, (int) background.getImageHeight() + 10, this);
+        }
+        //Reset painting after 2 waves of painting / effects are then gone
+        if (wave - 1 > lastMushroomWave){
+            paintBigMushroom = false;
+            paintSmallMushroom = false;
+        }
         //Draw player spaceship
         g2d.drawImage(player.getImage(), (int) player.getX(), (int) player.getY(),
                 (int) player.getImageWidth(), (int) player.getImageHeight(), this);
@@ -567,6 +625,20 @@ public class Board extends JPanel {
                         starEffect = true; //StarEffect becomes active
                         stopwatch2.start(); //Stopwatch2 keeps track of time for star power-up
                     }
+                    //PlayerSize is 2 if player collides with bigMushroom power-up
+                    else if (!powerUp[i].isDestroyed() && powerUp[i].isBigMushroom()){
+                        powerUp[i].setDestroyed(true); //Power-up is destroyed after collision
+                        playerSize = 2; //Set new playerSize (big)
+                        lastMushroomWave = wave; //Set lastMushroomWave to most recent wave with mushroom power-up
+                        paintBigMushroom = true; //Paint bigMushroom image
+                    }
+                    //PlayerSize is 1 if player collides with smallMushroom power-up
+                    else if (!powerUp[i].isDestroyed() && powerUp[i].isSmallMushroom()){
+                        powerUp[i].setDestroyed(true); //Power-up is destroyed after collision
+                        playerSize = 1; //Set new playerSize (small)
+                        lastMushroomWave = wave; //Set lastMushroomWave to most recent wave with mushroom power-up
+                        paintSmallMushroom = true; //Paint smallMushroom image
+                    }
                 }
 
                 //Power-ups are destroyed when they reach the side edge
@@ -670,6 +742,7 @@ public class Board extends JPanel {
 
     //Method for moving power-ups
     private void powerUpMove() {
+        double moveInt;
 
         if (gameInit) {
             //Set random asteroid to extraLife power-up
@@ -686,13 +759,38 @@ public class Board extends JPanel {
                 powerUp[num].setStar(true); //Set that asteroid to a star power-up
                 star = false; //Set star to false after the star power-up has been selected
             }
+            //Set random asteroid to bigMushroom power-up
+            if (bigMushroom) { //Select power-up when bigMushroom is true for that wave
+                for (int i = 0; i < 3; i++){
+                    int num = random.nextInt(Features.N_OF_ROCKS); //Pick new asteroid
+                    powerUp[num].setMoving(true); //Set that asteroid to moving
+                    powerUp[num].setBigMushroom(true); //Set that asteroid to a bigMushroom power-up
+                }
+                bigMushroom = false; //Set bigMushroom to false after the bigMushroom power-up has been selected
+            }
+            //Set random asteroid to star power-up
+            if (smallMushroom) { //Select power-up when smallMushroom is true for that wave
+                int num = random.nextInt(Features.N_OF_ROCKS); //Pick new asteroid
+                powerUp[num].setMoving(true); //Set that asteroid to moving
+                powerUp[num].setSmallMushroom(true); //Set that asteroid to a smallMushroom power-up
+                smallMushroom = false; //Set smallMushroom to false after the smallMushroom power-up has been selected
+            }
 
             //Move power-ups until side edge
             for (int i = 0; i < Features.N_OF_ROCKS; i++) {
-                if (powerUp[i].getX() - powerMoveInt < Features.SIDE_EDGE) {
-                    powerUp[i].setDestroyed(true); //Set power-ups to destroyed when they collide with teh side edge
-                } else if (powerUp[i].isMoving()) {
-                    powerUp[i].setX(powerUp[i].getX() - powerMoveInt); //Set new X position for power-up
+                //Set moveInt to mushroomMoveInt speed if power-up is a mushroom
+                if (powerUp[i].isBigMushroom() || powerUp[i].isSmallMushroom()){
+                    moveInt = mushroomMoveInt;
+                }
+                else {
+                    moveInt = powerMoveInt;
+                }
+
+                if (powerUp[i].getX() - moveInt < Features.SIDE_EDGE) {
+                    powerUp[i].setDestroyed(true); //Set power-ups to destroyed when they collide with the side edge
+                }
+                else if (powerUp[i].isMoving()) {
+                    powerUp[i].setX(powerUp[i].getX() - moveInt); //Set new X position for power-up
                 }
             }
         }
@@ -737,9 +835,30 @@ public class Board extends JPanel {
                 extraLifeWave = wave + 12; //Set wave for power-up
             }
         }
+        else if (powerType == 2){ //PowerType = 2 means a bigMushroom power-up wave will be chosen
+            //Add to bigMushroomWave to have power-up arrive in later waves
+            if (bigMushroomAmount == 0){ //First wave that bigMushroom power-up appears
+                bigMushroomWave = wave; //Set wave for power-up
+            }
+            else if (bigMushroomAmount == 1) { //Second wave that bigMushroom power-up appears
+                bigMushroomWave = wave + 11; //Set wave for power-up
+            }
+        }
+        else if (powerType == 3){ //PowerType = 3 means a smallMushroom power-up wave will be chosen
+            //Add to smallMushroomWave to have power-up arrive in later waves
+            if (smallMushroomAmount == 0){ //First wave that smallMushroom power-up appears
+                smallMushroomWave = wave + 5; //Set wave for power-up
+            }
+            else if (smallMushroomAmount == 1) { //Second wave that smallMushroom power-up appears
+                smallMushroomWave = wave + 8; //Set wave for power-up
+            }
+        }
         //Check for power-ups on the same wave
         if (extraLifeWave == starWave) {
             extraLifeWave++; //Force heart power-up to appear after star power-up
+        }
+        if (bigMushroomWave == smallMushroomWave) {
+            smallMushroomWave++; //Force smallMushroom power-up to appear after bigMushroom power-up
         }
     }
 
@@ -757,7 +876,9 @@ public class Board extends JPanel {
         asteroidMoveIntY = 1; //Set default asteroid speed in Y direction to 1
         pause = 0; //Set pause to 0
         extraLifeWave = 0; //Set wave for heart to appear to 0
-        starWave = 0; //Set wave to star to appear to 0
+        starWave = 0; //Set wave for star to appear to 0
+        bigMushroomWave = 0; //Set wave for bigMushroom to appear to 0
+        smallMushroomWave = 0; //Set wave for smallMushroom to appear to 0
         first = true; //Set first true
         startGame = true; //Set startGame true
         startStopwatch = true; //Set startStopwatch to true
@@ -768,6 +889,13 @@ public class Board extends JPanel {
         newMidMax = 0; //Set newMidMax to 0
         powerMoveInt = 1.3; //Set default speed for power-ups
         starEffect = false; //Set starEffect to false as effect is not active
+        playerSize = 0; //Set default size of spaceship to 0
+        lifeAmount = 0; //Set amount of heart power-ups released to 0
+        starAmount = 0; //Set amount of star power-ups released to 0
+        bigMushroomAmount = 0; //Set amount of bigMushroom power-ups released to 0
+        smallMushroomAmount = 0; //Set amount of smallMushroom power-ups released to 0
+        mushroomMoveInt = 4.5; //Set the speed of mushroom power-ups
+        lastMushroomWave = 0; //Set the lastMushroomWave to 0
     }
 
 }

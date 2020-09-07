@@ -95,6 +95,12 @@ public class Background extends SetValue{
             case 102: //Use case 102 for star image in top left
                 ii = new ImageIcon("src/resources/star.png");
                 break;
+            case 103: //Use case 103 for bigMushroom image in top left
+                ii = new ImageIcon("src/resources/bigMushroom.png");
+                break;
+            case 104: //Use case 104 for smallMushroom image in top left
+                ii = new ImageIcon("src/resources/smallMushroom.png");
+                break;
             default: //Set default background to waiting screen
                 ii = new ImageIcon("src/resources/wave0.jpg");
                 break;
